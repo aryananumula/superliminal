@@ -12,7 +12,7 @@ class Fear(Sprite):
         self.screen = screen
         self.aggro = False
         self.lastSeen = pos
-        self.radius = 5
+        self.radius = 1000
         self.move = False
 
     def update(self):

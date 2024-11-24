@@ -175,7 +175,7 @@ while running:
         if button.clicked(pygame.event.get()):
             stage = "game"
     elif stage == "game":
-        if t % 20000 == 0:
+        if t % 5000 == 0:
             fears.append(
                 fear.Fear(
                     screen,
@@ -715,11 +715,6 @@ while running:
             if di == 1:
                 di = 0
                 playerSprite = pygame.transform.flip(playerSprite, True, False)
-            if keys[pygame.K_w] and not onGround:
-                vx -= a
-                # vx = max(-ms, vx)
-            else:
-                vx = -ms
         if keys[pygame.K_d]:
             if di == 0:
                 di = 1
@@ -839,17 +834,19 @@ while running:
             onGround = False
         # flip() the display to put your work on screen
         for fearr in fears:
-            if fearr.dist(ppos=[plx, ply]) > 100 and random.randrange(
+            if fearr.dist(ppos=[plx, ply]) < 100 and random.randrange(
                 0, 20
             ) <= t % random.randrange(60, 120) <= random.randrange(10, 25):
-                screen.fill((40, 0, 0, 10), special_flags=pygame.BLEND_RGB_MIN)
+                # semi transparent red rectangle
+                screen.fill((255, 0, 0, 50), special_flags=pygame.BLEND_RGB_ADD)
         # screen.fill((40, 0, 0, 10), special_flags=pygame.BLEND_RGB_MIN)
         # screen.blit(overlay, overlay.get_rect(center=screen.get_rect().center))
         for fearr in fears:
             print(fearr.dist([plx, ply]))
-            fearr.moveToPlayer(
-                [plx, ply],
-            )
+            if fearr.agro([plx, ply]):
+                fearr.moveToPlayer(
+                    [plx, ply],
+                )
             if fearr.dist([plx, ply]) < 10:
                 exit()
 
@@ -927,7 +924,7 @@ while running:
             ),
         )
 
-    ts = text.render(f"Time: {t/1000}", True, (255, 255, 255))
+    ts = text.render(f"Time: {t/100}", True, (255, 255, 255))
     screen.blit(ts, (10, 10))
     pygame.display.flip()
     dt = clock.tick(60) / 1000
