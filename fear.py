@@ -13,9 +13,19 @@ class Fear(Sprite):
         self.aggro = False
         self.lastSeen = pos
         self.radius = 5
+        self.move = False
 
     def draw(self):
-        self.screen.blit(self.image, self.rect)
+        if self.move:
+            if self.aggro:
+                self.screen.blit(pg.image.load("images/pixil-frame-0-2.png"), self.rect)
+            else:
+                self.screen.blit(pg.image.load("images/pixil-frame-0-3.png"), self.rect)
+        else:
+            if self.aggro:
+                self.screen.blit(pg.image.load("images/pixil-frame-0-4.png"), self.rect)
+            else:
+                self.screen.blit(pg.image.load("images/pixil-frame-0-5.png"), self.rect)
 
     def agro(self, ppos):
         if (
@@ -34,14 +44,20 @@ class Fear(Sprite):
         )
 
     def moveToPlayer(self, ppos):
+        self.move = True
         a = ppos[0] - self.rect.centerx
         b = ppos[1] - self.rect.centery
         if self.dist(ppos) > 10:
-            self.rect.centerx += a / m.sqrt(a**2 + b**2) * 10
-            self.rect.centery += b / m.sqrt(a**2 + b**2) * 10
+            self.rect.centerx += a / max(m.sqrt(a**2 + b**2), 0.0001) * 10
+            self.rect.centery += b / max(m.sqrt(a**2 + b**2), 0.0001) * 10
+        if self.dist(ppos) < 10:
+            self.move = False
 
     def dash(self, ppos):
+        self.move = True
         a = ppos[0] - self.rect.centerx
         b = ppos[1] - self.rect.centery
-        self.rect.centerx += a / max(m.sqrt(a**2 + b**2), 1) * 50
-        self.rect.centery += b / max(m.sqrt(a**2 + b**2), 1) * 50
+        self.rect.centerx += a / max(m.sqrt(a**2 + b**2), 0.0001) * 50
+        self.rect.centery += b / max(m.sqrt(a**2 + b**2), 0.0001) * 50
+        if self.dist(ppos) < 10:
+            self.move = False
