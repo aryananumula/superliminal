@@ -4,6 +4,7 @@ import json
 import random
 
 import create
+import fear
 
 
 class Button:
@@ -78,7 +79,7 @@ t = -1
 j = 10
 onGround = True
 lt = 0
-stage = "menu"
+stage = "game"
 flashlight = False
 flashlight_image = pygame.image.load("images/fr.png")
 flashlight_image = pygame.transform.scale(flashlight_image, (WIDTH * 1.4, HEIGHT * 2))
@@ -90,6 +91,8 @@ tile3 = pygame.image.load("images/tile3.png")
 tile3 = pygame.transform.scale(tile3, (size, size))
 tile4 = pygame.image.load("images/tile4.png")
 tile4 = pygame.transform.scale(tile4, (size, size))
+
+fears = [fear.Fear(screen, pos=[0, 0])]
 
 
 def smmothstep(edge0, edge1, x):
@@ -693,28 +696,6 @@ while running:
                 screen.get_height() / 2 - scy,
             ),
         )"""
-        if 0 <= vy <= 1:
-            screen.blit(
-                playerSprite,
-                (
-                    plx - scx + screen.get_width() / 2 - ps / 2,
-                    ply
-                    - scy
-                    + screen.get_height() / 2
-                    + 20 * math.sin((t - lt) / 20)
-                    - ps / 2,
-                ),
-            )
-        else:
-            lt = t
-            screen.blit(
-                playerSprite,
-                (
-                    plx - scx + screen.get_width() / 2 - ps / 2,
-                    ply - scy + screen.get_height() / 2 - ps / 2,
-                ),
-            )
-
         if keys[pygame.K_SPACE]:
             ms = 5
         else:
@@ -847,15 +828,20 @@ while running:
         if peak:
             onGround = False
         # flip() the display to put your work on screen
-        """if (
-            random.randrange(0, 20)
-            <= t % random.randrange(60, 120)
-            <= random.randrange(10, 25)
-        ):
-            screen.fill((40, 0, 0, 10), special_flags=pygame.BLEND_RGB_MIN)"""
+        for fearr in fears:
+            print(fearr.pos)
+            if fearr.dist(ppos=[plx, ply]) > 100 and random.randrange(
+                0, 20
+            ) <= t % random.randrange(60, 120) <= random.randrange(10, 25):
+                screen.fill((40, 0, 0, 10), special_flags=pygame.BLEND_RGB_MIN)
         # screen.fill((40, 0, 0, 10), special_flags=pygame.BLEND_RGB_MIN)
         # screen.blit(overlay, overlay.get_rect(center=screen.get_rect().center))
-        # fear1.moveToPlayer(plx, ply, [])
+        for fearr in fears:
+            if fearr.agro([plx, ply]):
+                fearr.dash([plx, ply])
+            fearr.moveToPlayer(
+                [plx, ply],
+            )
         if flashlight:
             flashlightRect1 = flashlight_image.copy()
             flashlightRect2 = flashlight_image.copy()
@@ -882,7 +868,10 @@ while running:
             )
             screen.blit(flashlightRect1, flashlightRect1_rect)
             screen.blit(flashlightRect2, flashlightRect2_rect)
-        if t <= 300 and random.randrange(0, 70) == 1:
+        else:
+            for fearr in fears:
+                screen.blit(fearr.image, (fearr.rect.x - scx, fearr.rect.y - scy))
+        if t <= 300 and random.randrange(0, 70) != 1:
             ts = text.render(
                 "WASD to move, SPACE to use flashlight to see in the dark",
                 False,
@@ -899,6 +888,28 @@ while running:
             ts = text.render(
                 "Use the flashlight to see in the dark", False, (255, 255, 255, 50)
         )"""
+    if 0 <= vy <= 1:
+        screen.blit(
+            playerSprite,
+            (
+                plx - scx + screen.get_width() / 2 - ps / 2,
+                ply
+                - scy
+                + screen.get_height() / 2
+                + 20 * math.sin((t - lt) / 20)
+                - ps / 2,
+            ),
+        )
+    else:
+        lt = t
+        screen.blit(
+            playerSprite,
+            (
+                plx - scx + screen.get_width() / 2 - ps / 2,
+                ply - scy + screen.get_height() / 2 - ps / 2,
+            ),
+        )
+
     pygame.display.flip()
     dt = clock.tick(60) / 1000
 
