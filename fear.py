@@ -15,7 +15,7 @@ class Fear(Sprite):
         self.radius = 5
         self.move = False
 
-    def draw(self):
+    def update(self):
         if self.move:
             if self.aggro:
                 self.screen.blit(pg.image.load("images/pixil-frame-0-2.png"), self.rect)
@@ -28,17 +28,15 @@ class Fear(Sprite):
                 self.screen.blit(pg.image.load("images/pixil-frame-0-5.png"), self.rect)
 
     def agro(self, ppos):
-        if (
-            m.sqrt(
-                (self.rect.centerx - ppos[0]) ** 2 + (self.rect.centery - ppos[1]) ** 2
-            )
-            < self.radius
-        ):
+        if self.dist(ppos) < self.radius:
             self.aggro = True
             self.lastSeen = ppos
+        else:
+            self.aggro = False
         return self.aggro
 
     def dist(self, ppos):
+        print(self.rect)
         return m.sqrt(
             (self.rect.centerx - ppos[0]) ** 2 + (self.rect.centery - ppos[1]) ** 2
         )
@@ -47,9 +45,9 @@ class Fear(Sprite):
         self.move = True
         a = ppos[0] - self.rect.centerx
         b = ppos[1] - self.rect.centery
-        if self.dist(ppos) > 10:
-            self.rect.centerx += a / max(m.sqrt(a**2 + b**2), 0.0001) * 10
-            self.rect.centery += b / max(m.sqrt(a**2 + b**2), 0.0001) * 10
+        self.rect.centerx += a / max(m.sqrt(a**2 + b**2), 0.0001) * 1
+        self.rect.centery += b / max(m.sqrt(a**2 + b**2), 0.0001) * 1
+        print(a, b)
         if self.dist(ppos) < 10:
             self.move = False
 
